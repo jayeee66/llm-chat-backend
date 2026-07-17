@@ -1,0 +1,123 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "LLM Chat Backend API",
+        "version": "1.0.0",
+        "description": "Chat backend with multi-session support and LLM integration"
+    },
+    "paths": {
+        "/sessions": {
+            "post": {
+                "summary": "Create a new conversation session",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Session created"
+                    }
+                }
+            },
+            "get": {
+                "summary": "List all sessions (sorted by last update)",
+                "responses": {
+                    "200": {
+                        "description": "Array of sessions"
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}/messages": {
+            "get": {
+                "summary": "Get message history of a session",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Messages in chronological order"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Send a message and receive LLM response",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "content"
+                                ],
+                                "properties": {
+                                    "content": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Returns both persisted userMessage and assistantMessage"
+                    },
+                    "404": {
+                        "description": "Session not found"
+                    }
+                }
+            }
+        },
+        "/sessions/{sessionId}": {
+            "delete": {
+                "summary": "Delete a session and cascade-delete its messages",
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    },
+                    "404": {
+                        "description": "Session not found"
+                    }
+                }
+            }
+        }
+    }
+}

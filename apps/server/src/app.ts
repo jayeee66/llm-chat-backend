@@ -2,10 +2,16 @@ import express from 'express';
 import { Session, Message } from './models.js';
 // Import the LLMService interface to ensure the passed llm object adheres to the expected structure
 import { LLMService } from './llmService.js';
+// Import swagger-ui-express and the OpenAPI specification for API documentation
+import swaggerUi from 'swagger-ui-express';
+import openapi from './openapi.json' with { type: 'json' };
+
+
 
 export function createApp(llm: LLMService) {
     const app = express();
     app.use(express.json());
+    app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapi));
 
     app.post('/sessions', async (req, res) => {
         const session = await Session.create({ title: req.body?.title });
