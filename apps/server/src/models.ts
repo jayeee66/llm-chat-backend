@@ -10,7 +10,8 @@ const messageSchema = new Schema(
         // Each message is associated with a session        
         sessionId: {
             type: Schema.Types.ObjectId,
-            // Reference to the Session document, index for faster queries, and required to ensure every message belongs to a session
+            // Reference to the Session document, index for faster queries, 
+            // and required to ensure every message belongs to a session
             ref: 'Session', required: true, index: true
         },
         // The role of the message sender (user or assistant)

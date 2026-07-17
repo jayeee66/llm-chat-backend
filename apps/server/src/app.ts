@@ -1,5 +1,7 @@
 import express from 'express';
 import { Session, Message } from './models.js';
+// Import the NvidiaLLMService class
+import { NvidiaLLMService } from './llmService.js';
 
 export const app = express();
 app.use(express.json());
@@ -31,9 +33,20 @@ app.post('/sessions/:sessionId/messages', async (req, res) => {
         return res.status(404).json({ error: 'Session not found' });
     }
 
-    // Create a new message associated with the session
-    const message = await Message.create({ sessionId, role, content });
-    res.status(201).json(message);
+    // Create a new user message associated with the session
+    const userMessage = await Message.create({ sessionId, role: 'user', content });
+
+    // Get context of the session to send to the LLM service
+    const history = await Message.find({ sessionId }).sort({ createdAt: 1 });
+    const chatMessages = history.map(msg => ({ role: msg.role, content: msg.content }));
+
+    // Call LLM service to get a reply based on the chat history
+    const reply = await new NvidiaLLMService().chat(chatMessages);
+
+    // Create a new assistant message with the reply associated with the session
+    const assistantMessage = await Message.create({ sessionId, role: 'assistant', content: reply });
+
+    res.status(201).json(assistantMessage);
 });
 
 app.delete('/sessions/:sessionId', async (req, res) => {
