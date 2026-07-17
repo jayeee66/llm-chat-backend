@@ -4,5 +4,18 @@ services:
     image: mongo:7
     ports: [ "27017:27017" ]
     volumes: [ mongo-data:/data/db ]
+
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/dockerfile
+    ports: [ "3000:3000" ]
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/llm-chat
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
+    # Depend on the mongo service
+    depends_on:
+      - mongo
+
 volumes:
   mongo-data:

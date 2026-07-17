@@ -20,7 +20,9 @@ afterAll(async () => {
 
 describe('Message APIs (LLM mocked)', () => {
     it('POST message stores user msg and mocked assistant reply', async () => {
+        // Create a new session first
         const s = await request(app).post('/sessions').send({ title: 'chat' });
+        // Post a message to the session
         const res = await request(app)
             .post(`/sessions/${s.body._id}/messages`)
             .send({ content: 'hello' });
