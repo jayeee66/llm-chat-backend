@@ -1,5 +1,26 @@
 # LLM Chat Backend
 
+A multi-session chat backend with LLM integration, built with **TypeScript + Node.js + Express + MongoDB**, fully containerized with Docker.
+
+## Architecture
+
+```
+Client
+  │  HTTP (REST)
+  ▼
+┌────────────── apps/server (Express + TypeScript) ──────────────┐
+│  Routes / Controllers                                           │
+│     │                                                           │
+│     ├── Session & Message logic ──► Mongoose ──► MongoDB       │
+│     │                                            (Docker)      │
+│     └── LLMService (interface) ──► NvidiaLLMService ──► NVIDIA │
+│          ▲                          (OpenAI-compatible API)    │
+│          └── injected via app factory (mocked in tests)        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Layering:** routes handle HTTP concerns only; business logic lives in the handlers/services; the LLM provider is abstracted behind an `LLMService` interface and injected through an app factory (`createApp(llm)`), which isolates the external dependency and makes it trivially mockable in tests.
+
 ## Prerequisites
 
 - Node.js v22 or higher
