@@ -1,6 +1,9 @@
 import 'dotenv/config';
 import mongoose from 'mongoose';
-import { app } from './app.js';
+import { createApp } from './app.js';
+import { NvidiaLLMService } from './llmService.js';
+// Create an instance of the NvidiaLLMService
+const app = createApp(new NvidiaLLMService());
 
 const PORT = process.env.PORT ?? 3000;
 
