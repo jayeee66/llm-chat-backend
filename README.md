@@ -4,20 +4,7 @@ A multi-session chat backend with LLM integration, built with **TypeScript + Nod
 
 ## Architecture
 
-```
-Client
-  │  HTTP (REST)
-  ▼
-┌────────────── apps/server (Express + TypeScript) ──────────────┐
-│  Routes / Controllers                                           │
-│     │                                                           │
-│     ├── Session & Message logic ──► Mongoose ──► MongoDB       │
-│     │                                            (Docker)      │
-│     └── LLMService (interface) ──► NvidiaLLMService ──► NVIDIA │
-│          ▲                          (OpenAI-compatible API)    │
-│          └── injected via app factory (mocked in tests)        │
-└─────────────────────────────────────────────────────────────────┘
-```
+![Architecture](architecture.png)
 
 **Layering:** routes handle HTTP concerns only; business logic lives in the handlers/services; the LLM provider is abstracted behind an `LLMService` interface and injected through an app factory (`createApp(llm)`), which isolates the external dependency and makes it trivially mockable in tests.
 
@@ -39,7 +26,7 @@ docker compose up --build
 # API docs (Swagger UI): http://localhost:3000/docs
 ```
 
-**Development mode** (hot reload):
+**Development mode:**
  
 ```bash
 docker compose up -d mongo   # database in Docker
