@@ -4,7 +4,7 @@ A multi-session chat backend with LLM integration, built with **TypeScript + Nod
 
 ## Architecture
 
-![Architecture](architecture.png)
+![Architecture](Architecture.png)
 
 **Layering:** routes handle HTTP concerns only; business logic lives in the handlers/services; the LLM provider is abstracted behind an `LLMService` interface and injected through an app factory (`createApp(llm)`), which isolates the external dependency and makes it trivially mockable in tests.
 
