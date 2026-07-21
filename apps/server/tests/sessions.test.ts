@@ -1,10 +1,11 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
 import { createApp } from '../src/app.js';
+import type { LLMService } from '../src/llmService.js';
 
 // Mock LLMService for testing purposes
-const fakeLLM = {
-    chat: async () => 'mocked reply',
+const fakeLLM: LLMService = {
+    chat: async (model, messages) => 'mocked reply',
 };
 
 const app = createApp(fakeLLM);
@@ -33,6 +34,11 @@ describe('Session APIs', () => {
 
     it('DELETE unknown session returns 404', async () => {
         const res = await request(app).delete('/sessions/000000000000000000000000');
+        expect(res.status).toBe(404);
+    });
+
+    it('DELETE with malformed sessionId returns 404', async () => {
+        const res = await request(app).delete('/sessions/not-a-valid-id');
         expect(res.status).toBe(404);
     });
 });

@@ -5,10 +5,16 @@ import type { LLMService } from '../src/llmService.js';
 
 // Mock LLMService for testing purposes
 const fakeLLM: LLMService = {
-    chat: async () => 'mocked reply',
+    chat: async (model, messages) => 'mocked reply',
+};
+
+// A broken LLM service used to simulate an external API failure
+const brokenLLM: LLMService = {
+    chat: async () => { throw new Error('LLM unavailable'); },
 };
 
 const app = createApp(fakeLLM);
+const brokenApp = createApp(brokenLLM);
 
 beforeAll(async () => {
     await mongoose.connect('mongodb://localhost:27017/llm-chat-test');
@@ -47,5 +53,43 @@ describe('Message APIs (LLM mocked)', () => {
             .post('/sessions/000000000000000000000000/messages')
             .send({ content: 'x' });
         expect(res.status).toBe(404);
+    });
+
+    it('POST message with malformed sessionId returns 404', async () => {
+        const res = await request(app)
+            .post('/sessions/not-a-valid-id/messages')
+            .send({ content: 'x' });
+        expect(res.status).toBe(404);
+    });
+
+    it('POST message with empty content returns 400', async () => {
+        const s = await request(app).post('/sessions').send({ title: 'validation test' });
+        const res = await request(app)
+            .post(`/sessions/${s.body._id}/messages`)
+            .send({ content: '' });
+        expect(res.status).toBe(400);
+    });
+
+    it('POST message with missing content returns 400', async () => {
+        const s = await request(app).post('/sessions').send({ title: 'validation test 2' });
+        const res = await request(app)
+            .post(`/sessions/${s.body._id}/messages`)
+            .send({});
+        expect(res.status).toBe(400);
+    });
+
+    it('does not persist any message if the LLM call fails', async () => {
+        const s = await request(brokenApp).post('/sessions').send({ title: 'fail test' });
+
+        // This call is expected to fail internally since the LLM throws
+        await request(brokenApp)
+            .post(`/sessions/${s.body._id}/messages`)
+            .send({ content: 'hello' })
+            .catch(() => { });
+
+        // Key assertion: persistence happens AFTER a successful LLM reply,
+        // so a failed call should leave no orphaned user message behind
+        const messages = await request(brokenApp).get(`/sessions/${s.body._id}/messages`);
+        expect(messages.body.length).toBe(0);
     });
 });
