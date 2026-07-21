@@ -7,6 +7,7 @@ export interface ChatMessage {
 
 export interface LLMService {
     chat(messages: ChatMessage[]): Promise<string>;
+
 }
 
 export class NvidiaLLMService implements LLMService {
@@ -23,4 +24,5 @@ export class NvidiaLLMService implements LLMService {
         // Return the content of the first choice, or an empty string if not available
         return completion.choices[0]?.message?.content ?? '';
     }
+
 };
