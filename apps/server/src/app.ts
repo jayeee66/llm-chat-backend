@@ -41,7 +41,7 @@ export function createApp(llm: LLMService) {
     app.post('/sessions/:sessionId/messages', async (req, res) => {
         const { sessionId } = req.params;
 
-        const { role, content } = req.body;
+        const { model, content } = req.body;
         // Validate the content to ensure it's a non-empty string
         if (typeof content !== 'string' || content.trim() === '') {
             return res.status(400).json({ error: 'content is required' });
@@ -61,7 +61,8 @@ export function createApp(llm: LLMService) {
         const chatMessages = [...history.map(m => ({ role: m.role, content: m.content })), currMessage];
 
         // Call LLM service to get a reply based on the chat history
-        const reply = await llm.chat(chatMessages);
+        const selectedModel = model ?? 'meta/llama-3.1-8b-instruct';
+        const reply = await llm.chat(selectedModel, chatMessages);
 
         //  user message associated with the session
         const userMessage = await Message.create({ sessionId, role: 'user', content });

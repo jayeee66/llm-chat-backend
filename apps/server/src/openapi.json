@@ -54,6 +54,9 @@
                 "responses": {
                     "200": {
                         "description": "Messages in chronological order"
+                    },
+                    "404": {
+                        "description": "Session not found or malformed sessionId"
                     }
                 }
             },
@@ -79,7 +82,12 @@
                                 ],
                                 "properties": {
                                     "content": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "description": "The user's message"
+                                    },
+                                    "model": {
+                                        "type": "string",
+                                        "description": "Optional. NVIDIA model name, e.g. meta/llama-3.1-8b-instruct. Defaults to meta/llama-3.1-8b-instruct if omitted."
                                     }
                                 }
                             }
@@ -88,10 +96,13 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Returns both persisted userMessage and assistantMessage"
+                        "description": "Returns both persisted userMessage and assistantMessage. User and assistant messages are only persisted after a successful LLM reply, avoiding orphaned messages on failure."
+                    },
+                    "400": {
+                        "description": "content is required and must be a non-empty string"
                     },
                     "404": {
-                        "description": "Session not found"
+                        "description": "Session not found or malformed sessionId"
                     }
                 }
             }
@@ -114,7 +125,7 @@
                         "description": "Deleted"
                     },
                     "404": {
-                        "description": "Session not found"
+                        "description": "Session not found or malformed sessionId"
                     }
                 }
             }

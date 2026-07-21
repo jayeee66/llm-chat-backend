@@ -6,7 +6,7 @@ export interface ChatMessage {
 }
 
 export interface LLMService {
-    chat(messages: ChatMessage[]): Promise<string>;
+    chat(model: string, messages: ChatMessage[]): Promise<string>;
 
 }
 
@@ -15,9 +15,9 @@ export class NvidiaLLMService implements LLMService {
         apiKey: process.env.NVIDIA_API_KEY,
         baseURL: 'https://integrate.api.nvidia.com/v1',
     })
-    async chat(messages: ChatMessage[]): Promise<string> {
+    async chat(model: string, messages: ChatMessage[]): Promise<string> {
         const completion = await this.openai.chat.completions.create({
-            model: 'meta/llama-3.1-8b-instruct',
+            model,
             messages,
             max_tokens: 512,
         });
